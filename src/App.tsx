@@ -167,6 +167,7 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
+  const [isOverSidebar, setIsOverSidebar] = useState(false);
   
   const [systemPrompt, setSystemPrompt] = useState(DEFAULT_SYSTEM_PROMPT);
   const [noThink, setNoThink] = useState(true); // Default to ON
@@ -482,6 +483,7 @@ export default function App() {
     e.preventDefault();
     setIsDragging(false);
     setDragOverFolder(null);
+    setIsOverSidebar(false);
     
     // Fallback order: DataTransfer -> Ref
     const itemId = e.dataTransfer.getData("itemId") || draggedItemId.current;
@@ -501,7 +503,11 @@ export default function App() {
 
   const handleDragEnter = (e: React.DragEvent, folderId: string | null = null) => {
     e.preventDefault();
-    setDragOverFolder(folderId);
+    if (folderId) setDragOverFolder(folderId);
+    else {
+      setIsOverSidebar(true);
+      setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Survol Sidebar détecté`]);
+    }
   };
 
   const closeSettings = () => {
@@ -526,11 +532,18 @@ export default function App() {
   return (
     <div className={`app-container theme-default`}>
       <Toaster position="top-right" theme="dark" />
-      <aside className="sidebar">
+      <aside 
+        className="sidebar"
+        onDragOver={handleDragOver}
+        onDragEnter={(e) => handleDragEnter(e, null)}
+        onDragLeave={() => setIsOverSidebar(false)}
+        onDrop={(e) => handleDropOnFolder(e, undefined)}
+        style={{ borderRight: isOverSidebar ? '4px solid red' : '1px solid var(--border-color)' }}
+      >
         <div className="sidebar-header">
           <Cpu size={20} />
           <h1 style={{fontSize:'1.2rem',fontWeight:700}}>Gravity Chat</h1>
-          <div style={{fontSize:'10px', background:'red', color:'white', padding:'2px 5px', borderRadius:'4px', marginLeft:'auto'}}>v0.4.1 DEBUG</div>
+          <div style={{fontSize:'10px', background:'red', color:'white', padding:'2px 5px', borderRadius:'4px', marginLeft:'auto'}}>v0.4.2 DEBUG</div>
         </div>
         <div style={{display:'flex', gap:'0.5rem', marginBottom:'0.5rem'}}>
           <button className="nav-item active" style={{flex:1, border:'1px dashed var(--border-color)', justifyContent:'center'}} onClick={createNewChat}><Plus size={16} /> Chat</button>
