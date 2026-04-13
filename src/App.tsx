@@ -533,7 +533,7 @@ export default function App() {
       onMouseDown={() => handleDragStart(c.id)}
       className={`nav-item ${activeId === c.id ? 'active' : ''}`} 
       onClick={() => setActiveId(c.id)}
-      style={{ cursor: 'grab' }}
+      style={{ cursor: 'grab', userSelect: 'none' }}
     >
       <span style={{color: c.type === 'note' ? '#eab308' : '#5bb974'}} className="item-icon">
         {c.type === 'note' ? <FileText size={16} /> : <MessageSquare size={16} />}
@@ -582,10 +582,10 @@ export default function App() {
             >
               <div 
                 className="nav-item" 
-                style={{fontWeight: 600, padding:'0.5rem 0.75rem', userSelect: 'none'}}
+                style={{fontWeight: 600, padding:'0.5rem 0.75rem', userSelect: 'none', cursor: 'pointer'}}
                 onClick={() => setFolders(folders.map(fl => fl.id === f.id ? {...fl, isOpen: !fl.isOpen} : fl))} 
               >
-                <span style={{marginRight: '0.5rem', color:'var(--accent-color)'}}>
+                <span style={{marginRight: '0.5rem', color:'var(--accent-color)', userSelect: 'none'}}>
                   {f.isOpen ? <FolderOpen size={16} /> : <Folder size={16} />}
                 </span>
                 {editingId === f.id ? (
