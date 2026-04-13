@@ -552,11 +552,7 @@ export default function App() {
       <Toaster position="top-right" theme="dark" />
       <aside 
         className="sidebar"
-        onDragOver={handleDragOver}
-        onDragEnter={(e) => handleDragEnter(e, null)}
-        onDragLeave={() => setIsOverSidebar(false)}
-        onDrop={(e) => handleDropOnFolder(e, undefined)}
-        style={{ borderRight: isOverSidebar ? '4px solid red' : '1px solid var(--border-color)' }}
+        onMouseUp={() => handleMouseUpFolder(undefined)}
       >
         <div className="sidebar-header">
           <Cpu size={20} />
