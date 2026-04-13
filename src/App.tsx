@@ -482,8 +482,12 @@ export default function App() {
     e.preventDefault();
     setIsDragging(false);
     setDragOverFolder(null);
+    
+    // Fallback order: DataTransfer -> Ref
     const itemId = e.dataTransfer.getData("itemId") || draggedItemId.current;
+    
     setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Drop sur dossier ${folderId || 'Racine'} (Item: ${itemId})`]);
+    
     if (itemId) {
       setItems(prev => prev.map(c => c.id === itemId ? { ...c, folderId } : c));
     }
@@ -493,7 +497,9 @@ export default function App() {
   const handleDragOver = (e: React.DragEvent, folderId: string | null = null) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    if (folderId !== dragOverFolder) setDragOverFolder(folderId);
+    if (isDragging && folderId !== dragOverFolder) {
+      setDragOverFolder(folderId);
+    }
   };
 
   const closeSettings = () => {
@@ -531,21 +537,19 @@ export default function App() {
             <div 
               key={f.id} 
               onDragOver={(e) => handleDragOver(e, f.id)} 
-              onDragLeave={() => setDragOverFolder(null)}
               onDrop={(e) => handleDropOnFolder(e, f.id)} 
               style={{ 
-                marginBottom: '0.25rem', 
-                background: dragOverFolder === f.id ? 'rgba(29, 158, 117, 0.1)' : 'transparent',
+                marginBottom: '0.25rem',
+                padding: '2px',
                 borderRadius: '0.75rem',
+                background: dragOverFolder === f.id ? 'rgba(29, 158, 117, 0.15)' : 'transparent',
                 border: dragOverFolder === f.id ? '1px dashed var(--accent-color)' : '1px solid transparent'
               }}
             >
               <div 
                 className="nav-item" 
-                onDragOver={(e) => handleDragOver(e, f.id)} 
-                onDrop={(e) => { e.stopPropagation(); handleDropOnFolder(e, f.id); }}
-                onClick={() => setFolders(folders.map(fl => fl.id === f.id ? {...fl, isOpen: !fl.isOpen} : fl))} 
                 style={{fontWeight: 600, padding:'0.5rem 0.75rem'}}
+                onClick={() => setFolders(folders.map(fl => fl.id === f.id ? {...fl, isOpen: !fl.isOpen} : fl))} 
               >
                 <span style={{marginRight: '0.5rem', color:'var(--accent-color)'}}>
                   {f.isOpen ? <FolderOpen size={16} /> : <Folder size={16} />}
