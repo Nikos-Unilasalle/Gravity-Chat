@@ -183,6 +183,7 @@ export default function App() {
   const activeItem = items.find(c => c.id === activeId);
   const activeIdRef = useRef(activeId);
   const itemsRef = useRef(items);
+  const draggedItemId = useRef<string | null>(null);
 
   useEffect(() => {
     activeIdRef.current = activeId;
@@ -464,14 +465,16 @@ export default function App() {
 
   const handleDragStart = (e: React.DragEvent, itemId: string) => {
     e.dataTransfer.setData("itemId", itemId);
+    draggedItemId.current = itemId;
   };
 
   const handleDropOnFolder = (e: React.DragEvent, folderId: string | undefined) => {
     e.preventDefault();
-    const itemId = e.dataTransfer.getData("itemId");
+    const itemId = e.dataTransfer.getData("itemId") || draggedItemId.current;
     if (itemId) {
       setItems(prev => prev.map(c => c.id === itemId ? { ...c, folderId } : c));
     }
+    draggedItemId.current = null;
   };
 
   const handleDragOver = (e: React.DragEvent) => {
