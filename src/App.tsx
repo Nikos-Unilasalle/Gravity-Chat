@@ -494,12 +494,14 @@ export default function App() {
     draggedItemId.current = null;
   };
 
-  const handleDragOver = (e: React.DragEvent, folderId: string | null = null) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    if (isDragging && folderId !== dragOverFolder) {
-      setDragOverFolder(folderId);
-    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent, folderId: string | null = null) => {
+    e.preventDefault();
+    setDragOverFolder(folderId);
   };
 
   const closeSettings = () => {
@@ -528,7 +530,7 @@ export default function App() {
         <div className="sidebar-header">
           <Cpu size={20} />
           <h1 style={{fontSize:'1.2rem',fontWeight:700}}>Gravity Chat</h1>
-          <div style={{fontSize:'10px', background:'red', color:'white', padding:'2px 5px', borderRadius:'4px', marginLeft:'auto'}}>v0.4.0 DEBUG</div>
+          <div style={{fontSize:'10px', background:'red', color:'white', padding:'2px 5px', borderRadius:'4px', marginLeft:'auto'}}>v0.4.1 DEBUG</div>
         </div>
         <div style={{display:'flex', gap:'0.5rem', marginBottom:'0.5rem'}}>
           <button className="nav-item active" style={{flex:1, border:'1px dashed var(--border-color)', justifyContent:'center'}} onClick={createNewChat}><Plus size={16} /> Chat</button>
@@ -540,19 +542,26 @@ export default function App() {
           {folders.map(f => (
             <div 
               key={f.id} 
-              onDragOver={(e) => handleDragOver(e, f.id)} 
+              onDragOver={handleDragOver}
+              onDragEnter={(e) => handleDragEnter(e, f.id)}
+              onDragLeave={(e) => {
+                // Only clear if we're actually leaving the container
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setDragOverFolder(null);
+                }
+              }}
               onDrop={(e) => handleDropOnFolder(e, f.id)} 
               style={{ 
                 marginBottom: '0.25rem',
                 padding: '2px',
                 borderRadius: '0.75rem',
-                background: dragOverFolder === f.id ? 'rgba(29, 158, 117, 0.15)' : 'transparent',
+                background: dragOverFolder === f.id ? 'rgba(29, 158, 117, 0.2)' : 'transparent',
                 border: dragOverFolder === f.id ? '1px dashed var(--accent-color)' : '1px solid transparent'
               }}
             >
               <div 
                 className="nav-item" 
-                style={{fontWeight: 600, padding:'0.5rem 0.75rem'}}
+                style={{fontWeight: 600, padding:'0.5rem 0.75rem', pointerEvents: isDragging ? 'none' : 'auto'}}
                 onClick={() => setFolders(folders.map(fl => fl.id === f.id ? {...fl, isOpen: !fl.isOpen} : fl))} 
               >
                 <span style={{marginRight: '0.5rem', color:'var(--accent-color)'}}>
