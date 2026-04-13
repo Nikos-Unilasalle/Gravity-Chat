@@ -1,0 +1,687 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: var(--color-text-primary);
+    --muted: var(--color-text-secondary);
+    --faint: var(--color-text-tertiary);
+    --surface: var(--color-background-secondary);
+    --border: var(--color-border-tertiary);
+    --accent: #1D9E75;
+    --accent-dim: #E1F5EE;
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Libre Baskerville', Georgia, serif;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  body { background: transparent; }
+
+  article {
+    font-family: var(--serif);
+    color: var(--ink);
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+    line-height: 1.8;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle {
+    font-family: var(--sans);
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    border-left: 2px solid var(--accent);
+    padding-left: 1rem;
+  }
+
+  .meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--faint);
+    display: flex;
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 2.5rem 0 0.75rem;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin: 2rem 0 0.5rem;
+  }
+
+  p {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+    color: var(--ink);
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.82em;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--color-text-info, #185FA5);
+  }
+
+  pre {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem 1.25rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    line-height: 1.65;
+    color: var(--ink);
+    position: relative;
+  }
+
+  pre .c-comment { color: var(--faint); font-style: italic; }
+  pre .c-key { color: var(--accent); }
+  pre .c-str { color: #D85A30; }
+  pre .c-num { color: #185FA5; }
+
+  .pre-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--faint);
+    margin-bottom: 0.4rem;
+  }
+
+  .callout {
+    background: var(--accent-dim);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    font-family: var(--sans);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  .callout strong {
+    font-family: var(--mono);
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  .schema {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 2;
+    color: var(--muted);
+  }
+
+  .schema .arrow { color: var(--accent); }
+  .schema .box {
+    display: inline-block;
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    margin: 1.5rem 0;
+  }
+
+  th {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 0.5px solid var(--border);
+    font-weight: 400;
+  }
+
+  td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 0.5px solid var(--border);
+    color: var(--ink);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  td code { font-size: 0.8em; }
+
+  .divider {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 2.5rem 0;
+  }
+
+  .footnote {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--faint);
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid var(--border);
+    line-height: 1.6;
+  }
+
+  ul, ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  li { margin-bottom: 0.25rem; }
+
+  .chip {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 6px;
+    margin-right: 4px;
+    color: var(--muted);
+  }
+</style>
+
+<article>
+  <span class="tag">Vidéographie · Firmware · Post-production</span>
+
+  <h1>Stabilisation gyroscopique en post-prod avec le M5StickC et le Fujifilm X-M5</h1>
+
+  <p class="subtitle">
+    Le Fujifilm X-M5 n'embarque pas de métadonnées gyroscopiques dans ses fichiers vidéo. Ce guide montre comment pallier ce manque avec un M5StickC Pro fixé sur la griffe flash, en enregistrant les données IMU synchronisées, puis en les injectant dans Gyroflow pour une stabilisation optique de haute qualité.
+  </p>
+
+  <div class="meta">
+    <span>Niveau: Avancé</span>
+    <span>Durée de lecture: ~18 min</span>
+    <span>Outils: Arduino IDE · Gyroflow · Python 3.11</span>
+    <span>Matériel: M5StickC Plus2 · X-M5</span>
+  </div>
+
+  <h2>1. Pourquoi le X-M5 pose problème</h2>
+
+  <p>
+    Le Fujifilm X-M5 est une caméra remarquable pour son format compact et son rendu couleur. Mais contrairement au X-H2S ou au Sony A7S III, il n'enregistre aucune donnée de mouvement dans ses flux vidéo MOV ou MP4. Pas de flux gyroscopique embarqué, pas de métadonnées OIS exploitables — ce que Gyroflow, Reelsteady ou Warp Stabilizer peuvent utiliser directement.
+  </p>
+
+  <p>
+    La stabilisation logicielle sans données de mouvement repose sur une analyse optique du flux pixel par pixel (algorithmes de type Lucas-Kanade ou RAFT). Elle est coûteuse en calcul, imprécise sur les mouvements rapides, et détruit les bords du cadre. La solution propre : enregistrer soi-même les données IMU en externe, synchronisées avec la vidéo, puis les fournir à Gyroflow comme source de vérité.
+  </p>
+
+  <div class="callout">
+    <strong>Principe fondamental</strong>
+    Gyroflow peut ingérer un fichier CSV ou GCSV contenant des données gyroscopiques horodatées (timestamps en µs, rotations en dps), à condition que la fréquence d'échantillonnage soit suffisamment élevée — idéalement 200 Hz ou plus — et que la synchronisation temporelle soit gérée avec précision.
+  </div>
+
+  <h2>2. Anatomie du M5StickC Plus2</h2>
+
+  <p>
+    Le M5StickC Plus2 embarque un IMU MPU6886 — un combo accéléromètre 3 axes + gyroscope 3 axes d'InvenSense. Ses caractéristiques clés pour notre usage :
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Paramètre</th>
+        <th>Valeur</th>
+        <th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>ODR gyroscope max</td>
+        <td>1 kHz</td>
+        <td>Via registre SMPLRT_DIV</td>
+      </tr>
+      <tr>
+        <td>Plage gyro (configurable)</td>
+        <td>±250 / 500 / 1000 / 2000 dps</td>
+        <td>±1000 dps recommandé pour le handheld</td>
+      </tr>
+      <tr>
+        <td>Résolution ADC</td>
+        <td>16 bits</td>
+        <td>Sensibilité 32.8 LSB/dps à ±1000 dps</td>
+      </tr>
+      <tr>
+        <td>Interface</td>
+        <td>I²C (400 kHz) ou SPI</td>
+        <td>M5Stack utilise I²C par défaut</td>
+      </tr>
+      <tr>
+        <td>Horloge interne</td>
+        <td>PLL sur gyro X</td>
+        <td>Meilleure stabilité que oscil. interne</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    L'ESP32 du M5StickC dispose d'un timer hardware 64 bits capable d'une précision sub-microseconde. C'est ce timer que nous utiliserons pour horodater chaque mesure, et non <code>millis()</code> qui présente une dérive notable sur de longues séquences.
+  </p>
+
+  <h2>3. Firmware : enregistrement IMU haute fréquence</h2>
+
+  <h3>Stratégie de sampling</h3>
+
+  <p>
+    Deux approches existent : le polling bloquant dans <code>loop()</code>, ou l'utilisation du registre FIFO du MPU6886. Le FIFO est préférable : il découple le rythme de lecture du rythme de production des données, évite les skips lors des pics CPU (écriture SD, affichage LCD).
+  </p>
+
+  <div class="pre-label">firmware/imu_logger.ino — configuration MPU6886</div>
+  <pre><span class="c-comment">// Registres MPU6886 (adresse I²C 0x68)</span>
+<span class="c-key">#define</span> MPU6886_ADDR        <span class="c-num">0x68</span>
+<span class="c-key">#define</span> REG_SMPLRT_DIV      <span class="c-num">0x19</span>  <span class="c-comment">// diviseur de taux d'échantillonnage</span>
+<span class="c-key">#define</span> REG_CONFIG          <span class="c-num">0x1A</span>  <span class="c-comment">// filtre passe-bas numérique (DLPF)</span>
+<span class="c-key">#define</span> REG_GYRO_CONFIG     <span class="c-num">0x1B</span>  <span class="c-comment">// plage gyroscope</span>
+<span class="c-key">#define</span> REG_FIFO_EN         <span class="c-num">0x23</span>  <span class="c-comment">// activation FIFO</span>
+<span class="c-key">#define</span> REG_USER_CTRL       <span class="c-num">0x6A</span>  <span class="c-comment">// contrôle FIFO</span>
+<span class="c-key">#define</span> REG_FIFO_COUNTH     <span class="c-num">0x72</span>
+<span class="c-key">#define</span> REG_FIFO_R_W        <span class="c-num">0x74</span>
+
+<span class="c-key">void</span> initIMU() {
+  Wire.begin(<span class="c-num">32</span>, <span class="c-num">33</span>);          <span class="c-comment">// SDA=GPIO32, SCL=GPIO33 sur M5StickC Plus2</span>
+  Wire.setClock(<span class="c-num">400000</span>);
+
+  writeReg(REG_SMPLRT_DIV, <span class="c-num">0x04</span>);  <span class="c-comment">// ODR = 1000 / (1+4) = 200 Hz</span>
+  writeReg(REG_CONFIG,     <span class="c-num">0x03</span>);  <span class="c-comment">// DLPF_CFG=3 : 41 Hz BW, 5.9ms delay</span>
+  writeReg(REG_GYRO_CONFIG,<span class="c-num">0x10</span>);  <span class="c-comment">// FS_SEL=2 → ±1000 dps</span>
+  
+  <span class="c-comment">// Activer FIFO pour gyro uniquement (bits XG, YG, ZG)</span>
+  writeReg(REG_FIFO_EN,    <span class="c-num">0x70</span>);
+  writeReg(REG_USER_CTRL,  <span class="c-num">0x40</span>);  <span class="c-comment">// FIFO_EN bit</span>
+}</pre>
+
+  <div class="callout">
+    <strong>Choix du DLPF</strong>
+    Le DLPF_CFG=3 applique un filtre passe-bas à 41 Hz sur le gyroscope. C'est un compromis : on filtre le bruit haute fréquence (vibrations moteur, bruit thermique) sans retarder excessivement les données (5.9 ms de latence de groupe). Pour une caméra portée à la main, 41 Hz est suffisant — les mouvements humains n'excèdent pas 10–15 Hz.
+  </div>
+
+  <h3>Lecture FIFO et horodatage</h3>
+
+  <pre><span class="c-comment">// Timer hardware ESP32 — précision ~1 µs</span>
+hw_timer_t* timer = NULL;
+<span class="c-key">volatile</span> uint64_t isr_timestamp = <span class="c-num">0</span>;
+
+<span class="c-key">void</span> IRAM_ATTR onTimer() {
+  isr_timestamp = esp_timer_get_time();  <span class="c-comment">// µs depuis boot</span>
+}
+
+<span class="c-key">struct</span> ImuSample {
+  uint64_t ts_us;   <span class="c-comment">// timestamp en microsecondes</span>
+  float    gx, gy, gz;  <span class="c-comment">// deg/s</span>
+  float    ax, ay, az;  <span class="c-comment">// g</span>
+};
+
+<span class="c-key">void</span> readFifo(std::vector&lt;ImuSample&gt;&amp; buf) {
+  uint16_t count = (readReg(REG_FIFO_COUNTH) &lt;&lt; <span class="c-num">8</span>) | readReg(REG_FIFO_COUNTH + <span class="c-num">1</span>);
+  uint8_t  samples = count / <span class="c-num">6</span>;  <span class="c-comment">// 6 bytes par sample gyro (3 axes × 2 bytes)</span>
+  
+  <span class="c-comment">// Timestamp du dernier sample dans la fenêtre</span>
+  uint64_t now = esp_timer_get_time();
+  uint64_t dt  = <span class="c-num">1000000</span> / <span class="c-num">200</span>;  <span class="c-comment">// 5000 µs à 200 Hz</span>
+
+  <span class="c-key">for</span> (int i = <span class="c-num">0</span>; i &lt; samples; i++) {
+    int16_t rawGx = readFifoWord();
+    int16_t rawGy = readFifoWord();
+    int16_t rawGz = readFifoWord();
+
+    ImuSample s;
+    s.ts_us = now - (uint64_t)(samples - i - <span class="c-num">1</span>) * dt;
+    s.gx = rawGx / <span class="c-num">32.8f</span>;   <span class="c-comment">// sensibilité ±1000 dps</span>
+    s.gy = rawGy / <span class="c-num">32.8f</span>;
+    s.gz = rawGz / <span class="c-num">32.8f</span>;
+    buf.push_back(s);
+  }
+}</pre>
+
+  <h3>Écriture sur carte SD en GCSV</h3>
+
+  <p>
+    Gyroflow supporte nativement le format GCSV (Gyroflow CSV), un format texte simple avec un en-tête déclarant les axes et l'unité. On écrit par blocs de 512 bytes pour minimiser les appels I/O à la carte SD et éviter les micro-latences qui décaleraient le thread d'acquisition.
+  </p>
+
+  <pre><span class="c-key">void</span> writeGCSV(File&amp; f, std::vector&lt;ImuSample&gt;&amp; buf) {
+  String block = <span class="c-str">""</span>;
+  <span class="c-key">for</span> (<span class="c-key">auto</span>&amp; s : buf) {
+    block += String(s.ts_us);       <span class="c-comment">// colonne 1 : µs</span>
+    block += <span class="c-str">","</span> + String(s.gx, <span class="c-num">4</span>);
+    block += <span class="c-str">","</span> + String(s.gy, <span class="c-num">4</span>);
+    block += <span class="c-str">","</span> + String(s.gz, <span class="c-num">4</span>);
+    block += <span class="c-str">","</span> + String(s.ax, <span class="c-num">4</span>);
+    block += <span class="c-str">","</span> + String(s.ay, <span class="c-num">4</span>);
+    block += <span class="c-str">","</span> + String(s.az, <span class="c-num">4</span>) + <span class="c-str">"\n"</span>;
+  }
+  f.print(block);
+  buf.clear();
+}
+
+<span class="c-comment">// En-tête GCSV — à écrire une seule fois en début de fichier</span>
+<span class="c-key">const char</span>* GCSV_HEADER =
+  <span class="c-str">"GYROFLOW IMU LOG\n"</span>
+  <span class="c-str">"tscale,1000\n"</span>          <span class="c-comment">// µs → ms conversion hint</span>
+  <span class="c-str">"gscale,0.030487804878\n"</span> <span class="c-comment">// 1/32.8 — LSB vers rad/s</span>
+  <span class="c-str">"ascale,0.000598430\n"</span>    <span class="c-comment">// 1/16384 pour accéléro ±2g</span>
+  <span class="c-str">"t,gx,gy,gz,ax,ay,az\n"</span>;</pre>
+
+  <h2>4. Synchronisation temporelle : le nœud critique</h2>
+
+  <p>
+    La synchronisation entre le flux IMU et la vidéo est le problème le plus délicat de toute la chaîne. Un désalignement de 20 ms produit des artefacts visibles — la stabilisation corrige dans la mauvaise direction. Deux méthodes complémentaires :
+  </p>
+
+  <h3>Méthode 1 — Impulsion LED sur piste audio</h3>
+
+  <p>
+    Au démarrage de l'enregistrement, le M5StickC allume brièvement sa LED et émet simultanément un bip sonore sur son haut-parleur intégré. Le X-M5 enregistre le bip sur sa piste audio. En post-production, on identifie le pic audio (repère temporel vidéo) et on lit le timestamp correspondant dans le fichier GCSV. La différence constitue l'offset <code>t0</code> à fournir à Gyroflow.
+  </p>
+
+  <div class="schema">
+    <span class="box">Appui bouton</span>
+    <span class="arrow"> → </span>
+    <span class="box">LED flash + bip</span>
+    <span class="arrow"> → </span>
+    <span class="box">timestamp GCSV noté</span><br>
+    <span style="color:var(--faint)">               ↕ synchronisation</span><br>
+    <span class="box">Vidéo X-M5</span>
+    <span class="arrow"> → </span>
+    <span class="box">pic waveform audio</span>
+    <span class="arrow"> → </span>
+    <span class="box">frame N identifiée</span>
+  </div>
+
+  <h3>Méthode 2 — Sync automatique par corrélation</h3>
+
+  <p>
+    Gyroflow intègre un algorithme de synchronisation automatique basé sur la corrélation croisée entre le mouvement optique estimé dans la vidéo (optical flow dense) et les données gyroscopiques intégrées. Cette méthode est précise à ±1 frame (±33 ms à 30p) mais nécessite une vidéo avec des mouvements francs — elle échoue sur des plans très statiques.
+  </p>
+
+  <p>
+    En pratique, combiner les deux méthodes est optimal : la LED fournit un offset grossier (&lt;500 ms), la corrélation affine à &lt;5 ms.
+  </p>
+
+  <h2>5. Fixation mécanique et axes de référence</h2>
+
+  <p>
+    Le M5StickC doit être fixé rigidement sur le boîtier — tout jeu mécanique introduit une désynchronisation entre le mouvement du capteur et celui de l'objectif. On utilise une fixation griffe flash avec une embase en aluminium usinée ou imprimée en PETG (rigidité supérieure au PLA pour des raisons thermiques).
+  </p>
+
+  <p>
+    Le point crucial est la déclaration correcte du repère (frame) dans Gyroflow. Le M5StickC a son propre repère XYZ, qui ne coïncide pas forcément avec le repère caméra. Gyroflow demande l'orientation du gyroscope par rapport à la caméra via une matrice de rotation ou via des angles d'Euler (roll, pitch, yaw).
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Axe caméra</th>
+        <th>Axe MPU6886 (fixation griffe)</th>
+        <th>Signe</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Roulis (roll)</td>
+        <td>Gz</td>
+        <td>+1</td>
+      </tr>
+      <tr>
+        <td>Tangage (pitch)</td>
+        <td>Gx</td>
+        <td>−1 (axe inversé)</td>
+      </tr>
+      <tr>
+        <td>Lacet (yaw)</td>
+        <td>Gy</td>
+        <td>+1</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Vérification empirique</strong>
+    Pour valider le mapping d'axes : enregistrez quelques secondes en faisant un lacet pur (rotation horizontale uniquement). Chargez dans Gyroflow et observez quel axe est excité. Si Gx varie alors que vous faites un yaw, vos axes sont permutés. Cette vérification prend 5 minutes et évite des heures de débogage.
+  </div>
+
+  <h2>6. Pipeline de post-production</h2>
+
+  <h3>Étape 1 — Conversion et nettoyage du GCSV</h3>
+
+  <p>
+    Le script Python ci-dessous lit le fichier brut du M5StickC, applique une calibration de biais gyroscopique (offset mesuré à l'immobile), et exporte un GCSV propre compatible Gyroflow.
+  </p>
+
+  <pre><span class="c-comment">#!/usr/bin/env python3</span>
+<span class="c-key">import</span> pandas as pd
+<span class="c-key">import</span> numpy as np
+
+GYRO_BIAS = np.array([<span class="c-num">0.42</span>, <span class="c-num">-0.18</span>, <span class="c-num">0.07</span>])  <span class="c-comment"># dps — mesuré à plat, moteur off</span>
+SCALE    = <span class="c-num">1</span> / <span class="c-num">32.8</span>                           <span class="c-comment"># dps → rad/s</span>
+
+<span class="c-key">def</span> clean_gcsv(path_in: str, path_out: str):
+    df = pd.read_csv(path_in, comment=<span class="c-str">'#'</span>,
+                     names=[<span class="c-str">'t'</span>,<span class="c-str">'gx'</span>,<span class="c-str">'gy'</span>,<span class="c-str">'gz'</span>,<span class="c-str">'ax'</span>,<span class="c-str">'ay'</span>,<span class="c-str">'az'</span>],
+                     skiprows=<span class="c-num">5</span>)
+
+    <span class="c-comment"># Suppression des doublons et tri temporel</span>
+    df = df.drop_duplicates(<span class="c-str">'t'</span>).sort_values(<span class="c-str">'t'</span>).reset_index(drop=True)
+
+    <span class="c-comment"># Correction de biais</span>
+    df[<span class="c-str">'gx'</span>] -= GYRO_BIAS[<span class="c-num">0</span>]
+    df[<span class="c-str">'gy'</span>] -= GYRO_BIAS[<span class="c-num">1</span>]
+    df[<span class="c-str">'gz'</span>] -= GYRO_BIAS[<span class="c-num">2</span>]
+
+    <span class="c-comment"># Rééchantillonnage à ODR constant (200 Hz) par interpolation linéaire</span>
+    t_uniform = np.arange(df[<span class="c-str">'t'</span>].iloc[<span class="c-num">0</span>], df[<span class="c-str">'t'</span>].iloc[-<span class="c-num">1</span>], <span class="c-num">5000</span>)
+    <span class="c-key">for</span> col <span class="c-key">in</span> [<span class="c-str">'gx'</span>,<span class="c-str">'gy'</span>,<span class="c-str">'gz'</span>]:
+        df[col] = np.interp(t_uniform, df[<span class="c-str">'t'</span>], df[col])
+    df[<span class="c-str">'t'</span>] = t_uniform
+
+    header = (
+        <span class="c-str">"GYROFLOW IMU LOG\ntscale,1000\n"</span>
+        <span class="c-str">"gscale,1\nascale,1\n"</span>
+        <span class="c-str">"t,gx,gy,gz,ax,ay,az\n"</span>
+    )
+    <span class="c-key">with</span> open(path_out, <span class="c-str">'w'</span>) <span class="c-key">as</span> f:
+        f.write(header)
+        df.to_csv(f, index=False, header=False, float_format=<span class="c-str">'%.5f'</span>)
+
+clean_gcsv(<span class="c-str">"raw_imu.gcsv"</span>, <span class="c-str">"cleaned_imu.gcsv"</span>)</pre>
+
+  <h3>Étape 2 — Calibration de l'objectif dans Gyroflow</h3>
+
+  <p>
+    Gyroflow nécessite un profil de calibration pour corriger la distorsion de l'objectif avant la stabilisation. Sans calibration, la stabilisation warp produit des artefacts en bordure de cadre. Pour le X-M5 avec le XF 18-55mm :
+  </p>
+
+  <ol>
+    <li>Imprimer une grille de calibration Charuco (génération via OpenCV <code>aruco.CharucoBoard</code>)</li>
+    <li>Filmer ~60 secondes en déplaçant lentement la caméra devant la grille — couvrir tous les bords</li>
+    <li>Dans Gyroflow Toolbox, <em>Lens Calibration</em> → importer les frames → lancer l'optimisation</li>
+    <li>Exporter le profil JSON et le placer dans <code>~/.gyroflow/lenses/</code></li>
+  </ol>
+
+  <h3>Étape 3 — Import dans Gyroflow et réglages</h3>
+
+  <p>
+    Une fois la vidéo et le GCSV importés, les paramètres critiques à ajuster :
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Paramètre Gyroflow</th>
+        <th>Valeur recommandée</th>
+        <th>Explication</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Smoothness</td>
+        <td>0.5 – 1.5</td>
+        <td>Plus élevé = horizons plus stables, moins de mouvement naturel</td>
+      </tr>
+      <tr>
+        <td>Horizon lock</td>
+        <td>100% si plan fixe</td>
+        <td>Force l'horizontalité — désactiver pour plans dynamiques</td>
+      </tr>
+      <tr>
+        <td>Cropping mode</td>
+        <td>Dynamic crop</td>
+        <td>Préserve la FOV maximale au détriment de la taille de crop variable</td>
+      </tr>
+      <tr>
+        <td>Stabilization algo</td>
+        <td>Default (quaternion)</td>
+        <td>Bonne robustesse ; <code>RollingShutter</code> pour vidéo CMOS rapide</td>
+      </tr>
+      <tr>
+        <td>Rolling shutter correction</td>
+        <td>~16 ms pour X-M5 à 4K/30p</td>
+        <td>À mesurer ou estimer depuis la fréquence de lignes du capteur</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Rolling shutter du X-M5</strong>
+    Le capteur BSI CMOS du X-M5 présente un rolling shutter estimé entre 14 et 18 ms selon la résolution et le framerate. À 4K/30p, 16 ms est une bonne valeur de départ. Pour le mesurer précisément, filmer un stroboscope ou utiliser le test de la règle vibrante — la déformation de la droite verticale donne directement le temps de scan d'une frame.
+  </div>
+
+  <h3>Étape 4 — Export et intégration NLE</h3>
+
+  <p>
+    Gyroflow peut exporter directement en vidéo stabilisée (ProRes, H.264), ou fonctionner comme plugin dans DaVinci Resolve, Final Cut Pro et Premiere via le plugin officiel <em>Gyroflow Toolbox</em>. L'approche plugin est préférable : elle préserve la vidéo originale non destructive et permet d'ajuster les paramètres de stabilisation par clip sans réencoder.
+  </p>
+
+  <pre><span class="c-comment"># Export CLI Gyroflow (headless, pour un batch de rushes)</span>
+gyroflow \
+  --input  <span class="c-str">"DSCF0042.MOV"</span> \
+  --gyro   <span class="c-str">"imu_session01.gcsv"</span> \
+  --lens   <span class="c-str">"fuji_xm5_18mm.json"</span> \
+  --offset <span class="c-num">-312.5</span>       <span class="c-comment"># offset de sync en ms (négatif = gyro en avance)</span>
+  --smooth <span class="c-num">1.2</span>          \
+  --output <span class="c-str">"DSCF0042_stabilized.mov"</span> \
+  --codec  prores_ks \
+  --profile <span class="c-num">3</span>          <span class="c-comment"># ProRes 422 HQ</span></pre>
+
+  <h2>7. Calibration du biais gyroscopique</h2>
+
+  <p>
+    Le MPU6886, comme tout MEMS, présente un biais en température et en vieillissement. Pour une calibration correcte, il faut mesurer l'offset à chaque session, idéalement après un temps de chauffe de 2 minutes (la température du die influence significativement le biais de zéro du gyroscope).
+  </p>
+
+  <pre><span class="c-comment">// Calibration biais — à lancer au démarrage, caméra immobile 3 secondes</span>
+<span class="c-key">float</span> biasBuf[<span class="c-num">3</span>] = {<span class="c-num">0</span>};
+<span class="c-key">const int</span> N_SAMPLES = <span class="c-num">600</span>;  <span class="c-comment">// 3s à 200 Hz</span>
+
+<span class="c-key">for</span> (int i = <span class="c-num">0</span>; i &lt; N_SAMPLES; i++) {
+  <span class="c-key">float</span> gx, gy, gz;
+  readGyro(&amp;gx, &amp;gy, &amp;gz);  <span class="c-comment">// lecture directe registres, pas FIFO</span>
+  biasBuf[<span class="c-num">0</span>] += gx;
+  biasBuf[<span class="c-num">1</span>] += gy;
+  biasBuf[<span class="c-num">2</span>] += gz;
+  delay(<span class="c-num">5</span>);  <span class="c-comment">// 200 Hz</span>
+}
+biasBuf[<span class="c-num">0</span>] /= N_SAMPLES;
+biasBuf[<span class="c-num">1</span>] /= N_SAMPLES;
+biasBuf[<span class="c-num">2</span>] /= N_SAMPLES;
+<span class="c-comment">// Stocker en EEPROM (NVS sur ESP32)</span>
+nvs.putFloat(<span class="c-str">"bias_x"</span>, biasBuf[<span class="c-num">0</span>]);
+nvs.putFloat(<span class="c-str">"bias_y"</span>, biasBuf[<span class="c-num">1</span>]);
+nvs.putFloat(<span class="c-str">"bias_z"</span>, biasBuf[<span class="c-num">2</span>]);</pre>
+
+  <h2>8. Limites de l'approche et pistes d'amélioration</h2>
+
+  <p>
+    Cette solution atteint des résultats très proches des systèmes intégrés (GoPro, Sony Catalyst) dans des conditions normales. Quelques limitations à connaître :
+  </p>
+
+  <ul>
+    <li><strong>Vibrations haute fréquence</strong> : le DLPF à 41 Hz atténue les vibrations moteur, mais sur un drone ou un véhicule, des vibrations 60–200 Hz peuvent saturer le FIFO ou produire des artefacts. Augmenter le DLPF (DLPF_CFG=5 → 10 Hz BW) au détriment de la réactivité.</li>
+    <li><strong>Jitter de l'ESP32</strong> : l'ESP32 n'est pas un OS temps-réel. Des tâches WiFi ou Bluetooth actives peuvent introduire des délais dans la boucle de lecture. Désactiver WiFi/BT pendant l'enregistrement : <code>WiFi.mode(WIFI_OFF); btStop();</code></li>
+    <li><strong>Dérive thermique</strong> : sur des sessions longues (&gt;20 min), la température du die monte et dérive le biais. Une recalibration mid-session (pause de 3 secondes à plat) peut être scriptée.</li>
+    <li><strong>Précision du mapping d'axes</strong> : une erreur de quelques degrés dans la matrice de rotation produit une stabilisation imparfaite. Gyroflow permet d'affiner visuellement l'orientation avec le viewer 3D intégré.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <div class="footnote">
+    <p>
+      <span class="chip">M5StickC Plus2</span>
+      <span class="chip">MPU6886</span>
+      <span class="chip">Gyroflow 1.5</span>
+      <span class="chip">Fujifilm X-M5</span>
+      <span class="chip">ESP-IDF 5.x</span>
+    </p>
+    <p style="margin-top:0.75rem;">
+      Le firmware complet est disponible sur GitHub. La version décrite ici utilise l'Arduino framework pour sa simplicité, mais un portage ESP-IDF natif permettrait d'utiliser les FreeRTOS tasks et d'atteindre une ODR de 500 Hz en éliminant le jitter de la boucle <code>loop()</code>.
+    </p>
+  </div>
+</article>

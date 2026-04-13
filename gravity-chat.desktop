@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Gravity Chat
+Comment=A powerful AI chat application
+Exec=gravity-chat
+Icon=gravity-chat
+Terminal=false
+Type=Application
+Categories=Utility;Network;Chat;
+Keywords=AI;Chat;Ollama;
