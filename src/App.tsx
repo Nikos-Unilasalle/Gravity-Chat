@@ -471,13 +471,25 @@ export default function App() {
     setFolders([...folders, { id: 'f_' + Date.now().toString(), name: "Nouveau Dossier", isOpen: true }]);
   };
 
-  const handleDragStart = (e: React.DragEvent, itemId: string) => {
-    e.dataTransfer.setData("itemId", itemId);
-    e.dataTransfer.setData("text/plain", itemId); // Mac/WebKit requirement
-    e.dataTransfer.effectAllowed = "move";
+  const handleDragStart = (itemId: string) => {
     draggedItemId.current = itemId;
     setIsDragging(true);
-    setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Début Drag: ${itemId}`]);
+    setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Début Drag (Mouse): ${itemId}`]);
+  };
+
+  const handleMouseUpFolder = (folderId: string | undefined) => {
+    if (!isDragging) return;
+    const itemId = draggedItemId.current;
+    
+    setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] MouseUp sur dossier ${folderId || 'Racine'} (Item: ${itemId})`]);
+    
+    if (itemId) {
+      setItems(prev => prev.map(c => String(c.id) === String(itemId) ? { ...c, folderId } : c));
+    }
+    
+    setIsDragging(false);
+    setDragOverFolder(null);
+    draggedItemId.current = null;
   };
 
   const handleDropOnFolder = (e: React.DragEvent, folderId: string | undefined) => {
@@ -497,19 +509,18 @@ export default function App() {
     draggedItemId.current = null;
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  };
-
-  const handleDragEnter = (e: React.DragEvent, folderId: string | null = null) => {
-    e.preventDefault();
-    if (folderId) setDragOverFolder(folderId);
-    else {
-      setIsOverSidebar(true);
-      setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Survol Sidebar détecté`]);
-    }
-  };
+  // Clean up drag state on global mouse up
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        setDragOverFolder(null);
+        draggedItemId.current = null;
+      }
+    };
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
+  }, [isDragging]);
 
   const closeSettings = () => {
     setIsSettingsOpen(false);
@@ -517,7 +528,13 @@ export default function App() {
   };
 
   const renderSidebarItem = (c: Item) => (
-    <div key={c.id} draggable onDragStart={(e) => handleDragStart(e, c.id)} className={`nav-item ${activeId === c.id ? 'active' : ''}`} onClick={() => setActiveId(c.id)}>
+    <div 
+      key={c.id} 
+      onMouseDown={() => handleDragStart(c.id)}
+      className={`nav-item ${activeId === c.id ? 'active' : ''}`} 
+      onClick={() => setActiveId(c.id)}
+      style={{ cursor: 'grab' }}
+    >
       <span style={{color: c.type === 'note' ? '#eab308' : '#5bb974'}} className="item-icon">
         {c.type === 'note' ? <FileText size={16} /> : <MessageSquare size={16} />}
       </span>
@@ -544,7 +561,7 @@ export default function App() {
         <div className="sidebar-header">
           <Cpu size={20} />
           <h1 style={{fontSize:'1.2rem',fontWeight:700}}>Gravity Chat</h1>
-          <div style={{fontSize:'10px', background:'red', color:'white', padding:'2px 5px', borderRadius:'4px', marginLeft:'auto'}}>v0.4.3 DEBUG</div>
+          <div style={{fontSize:'10px', background:'red', color:'white', padding:'2px 5px', borderRadius:'4px', marginLeft:'auto'}}>v0.5.0 DEBUG</div>
         </div>
         <div style={{display:'flex', gap:'0.5rem', marginBottom:'0.5rem'}}>
           <button className="nav-item active" style={{flex:1, border:'1px dashed var(--border-color)', justifyContent:'center'}} onClick={createNewChat}><Plus size={16} /> Chat</button>
@@ -556,15 +573,9 @@ export default function App() {
           {folders.map(f => (
             <div 
               key={f.id} 
-              onDragOver={handleDragOver}
-              onDragEnter={(e) => handleDragEnter(e, f.id)}
-              onDragLeave={(e) => {
-                // Only clear if we're actually leaving the container
-                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                  setDragOverFolder(null);
-                }
-              }}
-              onDrop={(e) => handleDropOnFolder(e, f.id)} 
+              onMouseEnter={() => isDragging && setDragOverFolder(f.id)}
+              onMouseLeave={() => setDragOverFolder(null)}
+              onMouseUp={() => handleMouseUpFolder(f.id)}
               style={{ 
                 marginBottom: '0.25rem',
                 padding: '2px',
@@ -575,7 +586,7 @@ export default function App() {
             >
               <div 
                 className="nav-item" 
-                style={{fontWeight: 600, padding:'0.5rem 0.75rem', pointerEvents: isDragging ? 'none' : 'auto'}}
+                style={{fontWeight: 600, padding:'0.5rem 0.75rem', userSelect: 'none'}}
                 onClick={() => setFolders(folders.map(fl => fl.id === f.id ? {...fl, isOpen: !fl.isOpen} : fl))} 
               >
                 <span style={{marginRight: '0.5rem', color:'var(--accent-color)'}}>
@@ -596,7 +607,10 @@ export default function App() {
             </div>
           ))}
           
-          <div style={{ minHeight: '100px', paddingBottom: '2rem' }} onDragOver={handleDragOver} onDrop={(e) => handleDropOnFolder(e, undefined)}>
+          <div 
+            style={{ minHeight: '100px', paddingBottom: '2rem' }} 
+            onMouseUp={() => handleMouseUpFolder(undefined)}
+          >
             {items.filter(i => !i.folderId).map(c => renderSidebarItem(c))}
           </div>
         </div>
