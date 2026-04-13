@@ -489,7 +489,7 @@ export default function App() {
     setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Drop sur dossier ${folderId || 'Racine'} (Item: ${itemId})`]);
     
     if (itemId) {
-      setItems(prev => prev.map(c => c.id === itemId ? { ...c, folderId } : c));
+      setItems(prev => prev.map(c => String(c.id) === String(itemId) ? { ...c, folderId } : c));
     }
     draggedItemId.current = null;
   };
@@ -525,7 +525,11 @@ export default function App() {
     <div className={`app-container theme-default`}>
       <Toaster position="top-right" theme="dark" />
       <aside className="sidebar">
-        <div className="sidebar-header"><Cpu size={20} /><h1 style={{fontSize:'1.2rem',fontWeight:700}}>Gravity Chat</h1></div>
+        <div className="sidebar-header">
+          <Cpu size={20} />
+          <h1 style={{fontSize:'1.2rem',fontWeight:700}}>Gravity Chat</h1>
+          <div style={{fontSize:'10px', background:'red', color:'white', padding:'2px 5px', borderRadius:'4px', marginLeft:'auto'}}>v0.4.0 DEBUG</div>
+        </div>
         <div style={{display:'flex', gap:'0.5rem', marginBottom:'0.5rem'}}>
           <button className="nav-item active" style={{flex:1, border:'1px dashed var(--border-color)', justifyContent:'center'}} onClick={createNewChat}><Plus size={16} /> Chat</button>
           <button className="nav-item active" style={{flex:1, border:'1px dashed var(--border-color)', justifyContent:'center'}} onClick={createNewNote}><Plus size={16} /> Note</button>
