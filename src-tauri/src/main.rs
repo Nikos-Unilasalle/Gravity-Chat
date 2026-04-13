@@ -186,7 +186,7 @@ fn main() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_opener::init())
         .manage(AppState {
-            ollama_url: Mutex::new("http://localhost:11434".to_string()),
+            ollama_url: Mutex::new("http://127.0.0.1:11434".to_string()),
             client: Client::new(),
             abort_flag: Arc::new(StdMutex::new(false)),
         })
