@@ -163,6 +163,7 @@ export default function App() {
   const [input, setInput] = useState("");
   const [models, setModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
