@@ -530,7 +530,7 @@ export default function App() {
   const renderSidebarItem = (c: Item) => (
     <div 
       key={c.id} 
-      onMouseDown={() => handleDragStart(c.id)}
+      onMouseDown={(e) => { e.preventDefault(); handleDragStart(c.id); }}
       className={`nav-item ${activeId === c.id ? 'active' : ''}`} 
       onClick={() => setActiveId(c.id)}
       style={{ cursor: 'grab', userSelect: 'none' }}
