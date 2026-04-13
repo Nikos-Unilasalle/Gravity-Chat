@@ -163,8 +163,9 @@ export default function App() {
   const [input, setInput] = useState("");
   const [models, setModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
   
   const [systemPrompt, setSystemPrompt] = useState(DEFAULT_SYSTEM_PROMPT);
   const [noThink, setNoThink] = useState(true); // Default to ON
@@ -472,11 +473,14 @@ export default function App() {
     e.dataTransfer.setData("itemId", itemId);
     e.dataTransfer.effectAllowed = "move";
     draggedItemId.current = itemId;
+    setIsDragging(true);
     setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Début Drag: ${itemId}`]);
   };
 
   const handleDropOnFolder = (e: React.DragEvent, folderId: string | undefined) => {
     e.preventDefault();
+    setIsDragging(false);
+    setDragOverFolder(null);
     const itemId = e.dataTransfer.getData("itemId") || draggedItemId.current;
     setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Drop sur dossier ${folderId || 'Racine'} (Item: ${itemId})`]);
     if (itemId) {
@@ -485,9 +489,10 @@ export default function App() {
     draggedItemId.current = null;
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, folderId: string | null = null) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
+    if (folderId !== dragOverFolder) setDragOverFolder(folderId);
   };
 
   const closeSettings = () => {
@@ -522,10 +527,21 @@ export default function App() {
         
         <div className="sidebar-nav" style={{ flex: 1, overflowY: 'auto' }}>
           {folders.map(f => (
-            <div key={f.id} onDragOver={handleDragOver} onDrop={(e) => handleDropOnFolder(e, f.id)} style={{ marginBottom: '0.25rem' }}>
+            <div 
+              key={f.id} 
+              onDragOver={(e) => handleDragOver(e, f.id)} 
+              onDragLeave={() => setDragOverFolder(null)}
+              onDrop={(e) => handleDropOnFolder(e, f.id)} 
+              style={{ 
+                marginBottom: '0.25rem', 
+                background: dragOverFolder === f.id ? 'rgba(29, 158, 117, 0.1)' : 'transparent',
+                borderRadius: '0.75rem',
+                border: dragOverFolder === f.id ? '1px dashed var(--accent-color)' : '1px solid transparent'
+              }}
+            >
               <div 
                 className="nav-item" 
-                onDragOver={handleDragOver} 
+                onDragOver={(e) => handleDragOver(e, f.id)} 
                 onDrop={(e) => { e.stopPropagation(); handleDropOnFolder(e, f.id); }}
                 onClick={() => setFolders(folders.map(fl => fl.id === f.id ? {...fl, isOpen: !fl.isOpen} : fl))} 
                 style={{fontWeight: 600, padding:'0.5rem 0.75rem'}}
