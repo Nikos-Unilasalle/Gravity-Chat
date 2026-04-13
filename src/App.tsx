@@ -306,6 +306,7 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
     localStorage.setItem("gravity_settings", JSON.stringify({ systemPrompt, noThink, ollamaUrl, apiKey, savePath, userAvatar, aiAvatar }));
   }, [systemPrompt, noThink, ollamaUrl, apiKey, savePath, userAvatar, aiAvatar]);
 
