@@ -245,12 +245,22 @@ export default function App() {
     loadModels(keyToUse);
   }, []);
 
-  const saveToMarkdownFile = async (item: Item) => {
+  const saveToMarkdownFile = async (item: Item, currentFolders: Folder[]) => {
     if (!savePath) return;
     try {
       const titleSafe = item.title.replace(/[^a-zA-Z0-9]/g, '_');
       const fileName = `${titleSafe}_${item.id}.md`;
-      const filePath = savePath + (savePath.endsWith('/') || savePath.endsWith('\\') ? '' : '/') + fileName;
+      
+      let subFolder = "";
+      if (item.folderId) {
+        const folder = currentFolders.find(f => f.id === item.folderId);
+        if (folder) {
+          subFolder = folder.name.replace(/[^a-zA-Z0-9]/g, '_') + "/";
+        }
+      }
+
+      const separator = savePath.endsWith('/') || savePath.endsWith('\\') ? '' : '/';
+      const filePath = `${savePath}${separator}${subFolder}${fileName}`;
       
       let mdContent = `# ${item.title}\n\n`;
       if (item.type === 'chat') {
@@ -261,7 +271,7 @@ export default function App() {
         mdContent += turndownService.turndown(item.content || "");
       }
       
-      await writeTextFile(filePath, mdContent);
+      await invoke("save_file", { path: filePath, content: mdContent });
     } catch (e) {
       console.error("Erreur sauvegarde markdown:", e);
     }
@@ -313,10 +323,9 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("gravity_items", JSON.stringify(items));
     localStorage.setItem("gravity_folders", JSON.stringify(folders));
-    // Auto save active item logic
-    const aItem = items.find(i => i.id === activeId);
-    if (aItem && !isLoading && savePath) {
-      saveToMarkdownFile(aItem);
+    // Auto save all items logic to ensure "everything" is copied
+    if (!isLoading && savePath) {
+      items.forEach(it => saveToMarkdownFile(it, folders));
     }
   }, [items, folders, isLoading, savePath]);
 

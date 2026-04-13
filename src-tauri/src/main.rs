@@ -172,6 +172,17 @@ async fn process_file(path: String) -> Result<FileData, String> {
 }
 
 
+#[tauri::command]
+async fn save_file(path: String, content: String) -> Result<(), String> {
+    let path_obj = std::path::Path::new(&path);
+    if let Some(parent) = path_obj.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    std::fs::write(path_obj, content).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+
 fn main() {
     #[cfg(target_os = "linux")]
     {
@@ -190,7 +201,7 @@ fn main() {
             client: Client::new(),
             abort_flag: Arc::new(StdMutex::new(false)),
         })
-        .invoke_handler(tauri::generate_handler![get_models, chat_stream, stop_chat, set_ollama_url, process_file])
+        .invoke_handler(tauri::generate_handler![get_models, chat_stream, stop_chat, set_ollama_url, process_file, save_file])
         .run(tauri::generate_context!())
         .expect("error");
 }
