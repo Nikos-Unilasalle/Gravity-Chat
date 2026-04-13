@@ -557,7 +557,6 @@ export default function App() {
         <div className="sidebar-header">
           <Cpu size={20} />
           <h1 style={{fontSize:'1.2rem',fontWeight:700}}>Gravity Chat</h1>
-          <div style={{fontSize:'10px', background:'red', color:'white', padding:'2px 5px', borderRadius:'4px', marginLeft:'auto'}}>v0.5.0 DEBUG</div>
         </div>
         <div style={{display:'flex', gap:'0.5rem', marginBottom:'0.5rem'}}>
           <button className="nav-item active" style={{flex:1, border:'1px dashed var(--border-color)', justifyContent:'center'}} onClick={createNewChat}><Plus size={16} /> Chat</button>
