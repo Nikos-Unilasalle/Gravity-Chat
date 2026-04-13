@@ -15,8 +15,7 @@
         "title": "Gravity Chat",
         "width": 1100,
         "height": 800,
-        "transparent": false,
-        "windowEffects": { "effects": ["headerView"] }
+        "transparent": false
       }
     ],
     "security": {

@@ -168,7 +168,7 @@ export default function App() {
   
   const [systemPrompt, setSystemPrompt] = useState(DEFAULT_SYSTEM_PROMPT);
   const [noThink, setNoThink] = useState(true); // Default to ON
-  const [ollamaUrl, setOllamaUrl] = useState("http://localhost:11434");
+  const [ollamaUrl, setOllamaUrl] = useState("http://127.0.0.1:11434");
   const [apiKey, setApiKey] = useState("");
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   const [isTerminalOpen, setIsTerminalOpen] = useState(true);
@@ -216,7 +216,7 @@ export default function App() {
         const s = JSON.parse(saved);
         setSystemPrompt(s.systemPrompt || DEFAULT_SYSTEM_PROMPT);
         setNoThink(!!s.noThink);
-        setOllamaUrl(s.ollamaUrl || "http://localhost:11434");
+        setOllamaUrl(s.ollamaUrl?.replace("localhost", "127.0.0.1") || "http://127.0.0.1:11434");
         setApiKey(keyToUse);
         setSavePath(s.savePath || "");
         setUserAvatar(s.userAvatar || "");
