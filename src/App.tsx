@@ -311,9 +311,14 @@ export default function App() {
       setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] ${log}`]);
     });
 
+    const unlistenSave = listen("save-log", (event: any) => {
+       setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] ${event.payload}`]);
+    });
+
     return () => { 
       unlisten.then(f => f()); 
       unlistenLogs.then(f => f());
+      unlistenSave.then(f => f());
     };
   }, []);
 
@@ -465,12 +470,15 @@ export default function App() {
 
   const handleDragStart = (e: React.DragEvent, itemId: string) => {
     e.dataTransfer.setData("itemId", itemId);
+    e.dataTransfer.effectAllowed = "move";
     draggedItemId.current = itemId;
+    setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Début Drag: ${itemId}`]);
   };
 
   const handleDropOnFolder = (e: React.DragEvent, folderId: string | undefined) => {
     e.preventDefault();
     const itemId = e.dataTransfer.getData("itemId") || draggedItemId.current;
+    setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Drop sur dossier ${folderId || 'Racine'} (Item: ${itemId})`]);
     if (itemId) {
       setItems(prev => prev.map(c => c.id === itemId ? { ...c, folderId } : c));
     }
@@ -479,6 +487,7 @@ export default function App() {
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
   };
 
   const closeSettings = () => {
@@ -514,7 +523,13 @@ export default function App() {
         <div className="sidebar-nav" style={{ flex: 1, overflowY: 'auto' }}>
           {folders.map(f => (
             <div key={f.id} onDragOver={handleDragOver} onDrop={(e) => handleDropOnFolder(e, f.id)} style={{ marginBottom: '0.25rem' }}>
-              <div className="nav-item" onClick={() => setFolders(folders.map(fl => fl.id === f.id ? {...fl, isOpen: !fl.isOpen} : fl))} style={{fontWeight: 600, padding:'0.5rem 0.75rem'}}>
+              <div 
+                className="nav-item" 
+                onDragOver={handleDragOver} 
+                onDrop={(e) => { e.stopPropagation(); handleDropOnFolder(e, f.id); }}
+                onClick={() => setFolders(folders.map(fl => fl.id === f.id ? {...fl, isOpen: !fl.isOpen} : fl))} 
+                style={{fontWeight: 600, padding:'0.5rem 0.75rem'}}
+              >
                 <span style={{marginRight: '0.5rem', color:'var(--accent-color)'}}>
                   {f.isOpen ? <FolderOpen size={16} /> : <Folder size={16} />}
                 </span>
