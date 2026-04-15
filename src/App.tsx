@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, memo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { 
-  Send, Settings, Plus, MessageSquare, Trash2, Cpu, Upload, X, Square, FileText, Image as ImageIcon, Copy, FilePlus, Palette, Folder, FolderPlus, FolderOpen
+  Send, Settings, Plus, MessageSquare, Trash2, Cpu, Upload, X, Square, Globe, FileText, Image as ImageIcon, Copy, FilePlus, Palette, Folder, FolderPlus, FolderOpen
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -12,7 +12,6 @@ import { Toaster, toast } from "sonner";
 import { motion } from "framer-motion";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
-import { writeTextFile } from "@tauri-apps/plugin-fs";
 import TurndownService from "turndown";
 import { marked } from "marked";
 
@@ -167,12 +166,15 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
-  const [isOverSidebar, setIsOverSidebar] = useState(false);
+  const [lightMode, setLightMode] = useState(() => {
+    try { return localStorage.getItem('gravity_lightmode') === 'true'; } catch { return false; }
+  });
   
   const [systemPrompt, setSystemPrompt] = useState(DEFAULT_SYSTEM_PROMPT);
   const [noThink, setNoThink] = useState(true); // Default to ON
   const [ollamaUrl, setOllamaUrl] = useState("http://127.0.0.1:11434");
   const [apiKey, setApiKey] = useState("");
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   const [isTerminalOpen, setIsTerminalOpen] = useState(true);
 
@@ -180,6 +182,14 @@ export default function App() {
   const [savePath, setSavePath] = useState("");
   const [userAvatar, setUserAvatar] = useState("");
   const [aiAvatar, setAiAvatar] = useState("");
+
+  const toggleLightMode = () => {
+    setLightMode(prev => {
+      const next = !prev;
+      localStorage.setItem('gravity_lightmode', String(next));
+      return next;
+    });
+  };
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -215,18 +225,25 @@ export default function App() {
   useEffect(() => {
     const saved = localStorage.getItem("gravity_settings");
     let keyToUse = "";
+    let urlToUse = "http://127.0.0.1:11434";
     if (saved) {
       try {
         const s = JSON.parse(saved);
         setSystemPrompt(s.systemPrompt || DEFAULT_SYSTEM_PROMPT);
         setNoThink(!!s.noThink);
-        setOllamaUrl(s.ollamaUrl?.replace("localhost", "127.0.0.1") || "http://127.0.0.1:11434");
+        urlToUse = s.ollamaUrl || "http://localhost:11434";
+        setWebSearchEnabled(!!s.webSearchEnabled);
+        setOllamaUrl(urlToUse);
         setApiKey(keyToUse);
         setSavePath(s.savePath || "");
         setUserAvatar(s.userAvatar || "");
         setAiAvatar(s.aiAvatar || "");
       } catch (e) {}
     }
+    
+    // Sync backend URL
+    invoke("set_ollama_url", { url: urlToUse }).catch(console.error);
+
     const savedItems = localStorage.getItem("gravity_items");
     if (savedItems && savedItems !== "[]") {
       try {
@@ -326,8 +343,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("gravity_settings", JSON.stringify({ systemPrompt, noThink, ollamaUrl, apiKey, savePath, userAvatar, aiAvatar }));
-  }, [systemPrompt, noThink, ollamaUrl, apiKey, savePath, userAvatar, aiAvatar]);
+    localStorage.setItem("gravity_settings", JSON.stringify({ systemPrompt, noThink, ollamaUrl, apiKey, webSearchEnabled, savePath, userAvatar, aiAvatar }));
+  }, [systemPrompt, noThink, ollamaUrl, apiKey, webSearchEnabled, savePath, userAvatar, aiAvatar]);
 
   useEffect(() => {
     localStorage.setItem("gravity_items", JSON.stringify(items));
@@ -362,16 +379,37 @@ export default function App() {
     setIsLoading(true);
     const trimmedInput = input.trim();
 
-    const userMsg: Message = { role: "user", content: trimmedInput, color: "#eab308" };
+    const userMsg: Message = { role: "user", content: trimmedInput };
     const updated = [...(activeItem?.messages || []), userMsg];
     setItems(prev => prev.map(c => c.id === activeId ? { ...c, messages: updated, title: c.messages.length === 0 ? trimmedInput.slice(0, 20) : c.title } : c));
     setInput("");
 
     try {
+      let finalInput = trimmedInput;
+      if (webSearchEnabled && apiKey) {
+        try {
+          setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Recherche web lancée...`]);
+          const res: any = await invoke("web_search", { query: trimmedInput, apiKey: apiKey });
+          if (res && res.results) {
+            let searchContext = "\n\n### Résultats Web:\n";
+            res.results.slice(0, 3).forEach((r: any) => {
+              searchContext += `\n* **${r.title}** (${r.url}): ${r.content}\n`;
+            });
+            searchContext += "\nUtilise ces résultats pour répondre.\n";
+            finalInput = trimmedInput + searchContext;
+            setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Recherche web terminée.`]);
+          }
+        } catch (e) {
+          setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Erreur recherche web: ${e}`]);
+        }
+      }
+
       setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Envoi chat_stream (Model: ${selectedModel})...`]);
+      const currentMessagesWithSearch = [...(activeItem?.messages || []), { role: "user", content: finalInput }];
+      
       await invoke("chat_stream", {
         model: selectedModel,
-        messages: updated,
+        messages: currentMessagesWithSearch,
         systemPrompt: systemPrompt,
         apiKey: apiKey,
         think: !noThink,
@@ -492,23 +530,6 @@ export default function App() {
     draggedItemId.current = null;
   };
 
-  const handleDropOnFolder = (e: React.DragEvent, folderId: string | undefined) => {
-    e.preventDefault();
-    setIsDragging(false);
-    setDragOverFolder(null);
-    setIsOverSidebar(false);
-    
-    // Fallback order: DataTransfer -> Ref
-    const itemId = e.dataTransfer.getData("itemId") || draggedItemId.current;
-    
-    setTerminalLogs(prev => [...prev.slice(-199), `[${new Date().toLocaleTimeString()}] Drop sur dossier ${folderId || 'Racine'} (Item: ${itemId})`]);
-    
-    if (itemId) {
-      setItems(prev => prev.map(c => String(c.id) === String(itemId) ? { ...c, folderId } : c));
-    }
-    draggedItemId.current = null;
-  };
-
   // Clean up drag state on global mouse up
   useEffect(() => {
     const handleGlobalMouseUp = () => {
@@ -524,6 +545,7 @@ export default function App() {
 
   const closeSettings = () => {
     setIsSettingsOpen(false);
+    invoke("set_ollama_url", { url: ollamaUrl }).catch(console.error);
     loadModels(apiKey);
   };
 
@@ -548,7 +570,7 @@ export default function App() {
   );
 
   return (
-    <div className={`app-container theme-default`}>
+    <div className={`app-container theme-default${lightMode ? ' light-mode' : ''}`}>
       <Toaster position="top-right" theme="dark" />
       <aside 
         className="sidebar"
@@ -615,6 +637,14 @@ export default function App() {
             <Cpu size={18} className="item-icon" /> Terminal API
             <div className={`switch ${isTerminalOpen ? 'on' : 'off'}`} style={{marginLeft:'auto', transform:'scale(0.7)'}}></div>
           </div>
+          {/* Dark / Light mode toggle */}
+          <div className="nav-item theme-toggle" onClick={toggleLightMode} title={lightMode ? 'Passer en mode sombre' : 'Passer en mode clair'}>
+            <span className="theme-toggle-icon" style={{opacity: lightMode ? 0.4 : 0.9}}>🌙</span>
+            <div className={`theme-toggle-track${lightMode ? ' is-light' : ''}`}>
+              <div className={`theme-toggle-thumb${lightMode ? ' is-light' : ''}`} />
+            </div>
+            <span className="theme-toggle-icon" style={{opacity: lightMode ? 0.9 : 0.4}}>☀️</span>
+          </div>
         </div>
       </aside>
 
@@ -628,6 +658,9 @@ export default function App() {
             </select>
           </div>
           <div style={{display:'flex', gap:'0.5rem'}}>
+            <button className={`status-badge ${webSearchEnabled ? 'active' : ''}`} onClick={() => setWebSearchEnabled(!webSearchEnabled)}>
+              <Globe size={14} style={{marginRight:'4px'}} /> Web Search: {webSearchEnabled ? 'ON' : 'OFF'}
+            </button>
             <button className={`status-badge ${noThink ? 'active' : ''}`} onClick={() => setNoThink(!noThink)}>
               {noThink ? "No-Think: ON" : "No-Think: OFF"}
             </button>

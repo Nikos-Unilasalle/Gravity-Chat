@@ -182,6 +182,16 @@ async fn save_file(path: String, content: String) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+async fn web_search(state: State<'_, AppState>, query: String, api_key: String) -> Result<serde_json::Value, String> {
+    let endpoint = "https://ollama.com/api/web_search";
+    let resp = state.client.post(endpoint)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .json(&serde_json::json!({ "query": query }))
+        .send().await.map_err(|e| e.to_string())?;
+    let json = resp.json::<serde_json::Value>().await.map_err(|e| e.to_string())?;
+    Ok(json)
+}
 
 fn main() {
     #[cfg(target_os = "linux")]
@@ -201,7 +211,15 @@ fn main() {
             client: Client::new(),
             abort_flag: Arc::new(StdMutex::new(false)),
         })
-        .invoke_handler(tauri::generate_handler![get_models, chat_stream, stop_chat, set_ollama_url, process_file, save_file])
+        .invoke_handler(tauri::generate_handler![
+            get_models, 
+            chat_stream, 
+            stop_chat, 
+            set_ollama_url, 
+            process_file, 
+            save_file, 
+            web_search
+        ])
         .run(tauri::generate_context!())
         .expect("error");
 }
